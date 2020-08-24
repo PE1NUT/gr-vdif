@@ -1,0 +1,11 @@
+Todo:
+
+* Add input field for station code
+* Add input field for sample_rate
+* Add input field for number of subbands
+* Add input field for number of bits/sample
+* Add Documentation
+* Add Example Flowchart, try to optimize it
+* Rename 'VDIF_packetize' to 'VDIF_add_header' ?
+* Add VDIF standard to documentation
+
