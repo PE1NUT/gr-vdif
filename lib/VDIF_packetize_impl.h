@@ -28,8 +28,34 @@ namespace gr {
 
     class VDIF_packetize_impl : public VDIF_packetize
     {
+     unsigned int d_frame_length;
+     unsigned int d_start_time;
      private:
-      // Nothing to declare in this block.
+             time_t epoch;
+     uint64_t packet_count;
+     struct vdif_header {
+        uint32_t seconds:30;
+        uint32_t legagcy:1;
+        uint32_t invalid:1;
+
+        uint32_t frame_count:24;
+        uint32_t ref_epoch:6;
+        uint32_t ua:2;
+
+        uint32_t frame_length:24;
+        uint32_t log_chans:5;
+        uint32_t version:3;
+
+        uint32_t station_id:16;
+        uint32_t thread_id:10;
+        uint32_t bits_sample:5;
+        uint32_t cplx:1;
+
+        uint32_t EDVA:24;
+        uint32_t EDV:8;
+        uint32_t EDVB;
+        uint32_t EDVC;
+        uint32_t EDVD; } vh;
 
      public:
       VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time);

@@ -41,9 +41,37 @@ namespace gr {
      */
     VDIF_packetize_impl::VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time)
       : gr::block("VDIF_packetize",
-              gr::io_signature::make(<+MIN_IN+>, <+MAX_IN+>, sizeof(<+ITYPE+>)),
-              gr::io_signature::make(<+MIN_OUT+>, <+MAX_OUT+>, sizeof(<+OTYPE+>)))
-    {}
+              gr::io_signature::make(1, 1, sizeof(char)),
+              gr::io_signature::make(1, 1, sizeof(char))),
+              d_frame_length(frame_length), d_start_time(start_time)
+    {
+        struct tm tm_epoch;
+        struct timespec ts_epoch;
+
+        /* Advise GRS of the output block size */
+        set_output_multiple(frame_length + 32);
+
+        /* Construct the VDIF header */
+        bzero(&vh, sizeof(struct vdif_header));
+        /* Calculate the Half Year Epoch */
+        ts_epoch.tv_sec = start_time;
+        ts_epoch.tv_nsec = 0;
+        gmtime_r(&ts_epoch.tv_sec, &tm_epoch);
+        unsigned int hye = 2*(tm_epoch.tm_year - 100);
+        if(tm_epoch.tm_mon > 5) hye++;
+        bzero(&tm_epoch, sizeof(tm_epoch));
+        tm_epoch.tm_year = 100 + hye/2;
+        tm_epoch.tm_mon = 6 * (hye%2);
+        tm_epoch.tm_mday = 1;
+        epoch = timegm(&tm_epoch);
+        hye = hye / 64;
+        /* Fill in the actual VDIF header */
+        vh.ref_epoch = hye;
+        vh.frame_length = (frame_length + 32)/8;
+        vh.bits_sample = 1;
+        vh.station_id = 'D'*256 + 'W';
+        vh.seconds = (time_t)start_time - epoch;
+    }
 
     /*
      * Our virtual destructor.
@@ -55,7 +83,7 @@ namespace gr {
     void
     VDIF_packetize_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-      /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
+        ninput_items_required[0] = noutput_items/(d_frame_length+32)*d_frame_length*4;
     }
 
     int
@@ -64,10 +92,32 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-      const <+ITYPE+> *in = (const <+ITYPE+> *) input_items[0];
-      <+OTYPE+> *out = (<+OTYPE+> *) output_items[0];
+      const char *in = (const char *) input_items[0];
+      char *out = (char *) output_items[0];
 
       // Do <+signal processing+>
+
+        unsigned int frame = 0;
+        while(frame < noutput_items/(d_frame_length+32))
+        {
+            memcpy(out, &vh, 32);
+            out += 32;
+            for (int i = 0; i < d_frame_length; i++)
+            {
+                char tmp = 0;
+                for (int j = 0; j < 4; j++)
+                    tmp += (*in++ & 0x03) << j*2;
+                *out++ = tmp;
+            }
+            frame++;
+            vh.frame_count++;
+            if(vh.frame_count >= 8000)
+            {
+                vh.frame_count = 0;
+                vh.seconds++;
+            }
+        }
+
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (noutput_items);
