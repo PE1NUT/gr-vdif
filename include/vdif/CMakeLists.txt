@@ -23,5 +23,5 @@
 ########################################################################
 install(FILES
     api.h
-    DESTINATION include/vdif
+    VDIF_packetize.h DESTINATION include/vdif
 )

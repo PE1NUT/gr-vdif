@@ -8,5 +8,8 @@
 %include "vdif_swig_doc.i"
 
 %{
+#include "vdif/VDIF_packetize.h"
 %}
 
+%include "vdif/VDIF_packetize.h"
+GR_SWIG_BLOCK_MAGIC2(vdif, VDIF_packetize);

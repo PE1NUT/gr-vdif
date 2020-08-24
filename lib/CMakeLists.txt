@@ -24,6 +24,7 @@
 include(GrPlatform) #define LIB_SUFFIX
 
 list(APPEND vdif_sources
+    VDIF_packetize_impl.cc
 )
 
 set(vdif_sources "${vdif_sources}" PARENT_SCOPE)
