@@ -18,6 +18,19 @@ parameters:
 - id: start_time
   label: Start Time
   dtype: int
+- id: vtp
+  label: VTP
+  dtype: bool
+  default: False
+- id: station_code
+  label: Station Code
+  dtype: string
+  default: 'DW'
+
+asserts:
+- ${ len(station_code) < 3 }
+- ${ station_code[0].isupper() or '0' <= station_code[0] <= '9' }
+- ${ station_code[1].isupper() or '0' <= station_code[1] <= '9' }
 
 #  Make one 'inputs' list entry per input and one 'outputs' list entry per output.
 #  Keys include:
@@ -33,6 +46,17 @@ inputs:
 outputs:
 - label: out
   dtype: byte
+
+documentation: |-
+    This block takes packed (4 samples / byte) 2 bit sampled data, and adds a VDIF header in front.
+
+    Optionally, it can add a VTP counter in front of that.
+
+    Start_time must be in unix epoch seconds.
+
+    Frame size is in bytes, e.g. 8000.
+
+    Station Code must be 2 characters in length, uppercase or numbers.
 
 #  'file_format' specifies the version of the GRC yml format used in the file
 #  and should usually not be changed.
