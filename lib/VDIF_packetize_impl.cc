@@ -29,17 +29,17 @@ namespace gr {
   namespace vdif {
 
     VDIF_packetize::sptr
-    VDIF_packetize::make(unsigned int frame_length, unsigned int start_time)
+    VDIF_packetize::make(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code)
     {
       return gnuradio::get_initial_sptr
-        (new VDIF_packetize_impl(frame_length, start_time));
+        (new VDIF_packetize_impl(frame_length, start_time, VTP, station_code));
     }
 
 
     /*
      * The private constructor
      */
-    VDIF_packetize_impl::VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time)
+    VDIF_packetize_impl::VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code)
       : gr::block("VDIF_packetize",
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(char))),
@@ -47,29 +47,32 @@ namespace gr {
     {
         struct tm tm_epoch;
         struct timespec ts_epoch;
+        unsigned int hye; /* Half year epoch */
+        time_t epoch;
 
         /* Advise GRS of the output block size */
         set_output_multiple(frame_length + 32);
 
-        /* Construct the VDIF header */
+        /* Construct/clear the VDIF header */
         bzero(&vh, sizeof(struct vdif_header));
-        /* Calculate the Half Year Epoch */
+
+        /* Calculate the VDIF epoch and the Half Year Epoch */
         ts_epoch.tv_sec = start_time;
         ts_epoch.tv_nsec = 0;
         gmtime_r(&ts_epoch.tv_sec, &tm_epoch);
-        unsigned int hye = 2*(tm_epoch.tm_year - 100);
+        hye = 2*(tm_epoch.tm_year - 100);
         if(tm_epoch.tm_mon > 5) hye++;
         bzero(&tm_epoch, sizeof(tm_epoch));
         tm_epoch.tm_year = 100 + hye/2;
         tm_epoch.tm_mon = 6 * (hye%2);
         tm_epoch.tm_mday = 1;
         epoch = timegm(&tm_epoch);
-        hye = hye / 64;
+
         /* Fill in the actual VDIF header */
         vh.ref_epoch = hye;
         vh.frame_length = (frame_length + 32)/8;
         vh.bits_sample = 1;
-        vh.station_id = 'D'*256 + 'W';
+        vh.station_id = 256 * station_code[0] + station_code[1];
         vh.seconds = (time_t)start_time - epoch;
     }
 

@@ -31,11 +31,12 @@ namespace gr {
      unsigned int d_frame_length;
      unsigned int d_start_time;
      private:
-             time_t epoch;
+         time_t epoch;
      uint64_t packet_count;
+    // VDIF header as a struct
      struct vdif_header {
         uint32_t seconds:30;
-        uint32_t legagcy:1;
+        uint32_t legacy:1;
         uint32_t invalid:1;
 
         uint32_t frame_count:24;
@@ -58,7 +59,7 @@ namespace gr {
         uint32_t EDVD; } vh;
 
      public:
-      VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time);
+      VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code);
       ~VDIF_packetize_impl();
 
       // Where all the action really happens

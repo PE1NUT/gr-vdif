@@ -4,7 +4,7 @@ category: '[vdif]'
 
 templates:
   imports: import vdif
-  make: vdif.VDIF_packetize(${frame_length}, ${start_time})
+  make: vdif.VDIF_packetize(${frame_length}, ${start_time}, ${VTP}, ${station_code})
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:
@@ -12,13 +12,17 @@ templates:
 #     * label (label shown in the GUI)
 #     * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
 parameters:
-- id: frame_length
-  label: Frame Length
-  dtype: int
 - id: start_time
   label: Start Time
   dtype: int
-- id: vtp
+- id: frame_length
+  label: Frame Length
+  dtype: int
+- id: streams
+  label: Streams
+  dtype: int
+  default: 4
+- id: VTP
   label: VTP
   dtype: bool
   default: False
@@ -29,8 +33,7 @@ parameters:
 
 asserts:
 - ${ len(station_code) < 3 }
-- ${ station_code[0].isupper() or '0' <= station_code[0] <= '9' }
-- ${ station_code[1].isupper() or '0' <= station_code[1] <= '9' }
+- ${ streams > 0 and streams <= 16 }
 
 #  Make one 'inputs' list entry per input and one 'outputs' list entry per output.
 #  Keys include:

@@ -45,7 +45,7 @@ namespace gr {
        * class. vdif::VDIF_packetize::make is the public interface for
        * creating new instances.
        */
-      static sptr make(unsigned int frame_length, unsigned int start_time);
+      static sptr make(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code);
     };
 
   } // namespace vdif
