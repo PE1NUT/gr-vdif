@@ -30,6 +30,7 @@ namespace gr {
     {
      unsigned int d_frame_length;
      unsigned int d_start_time;
+     unsigned int d_streams;
      private:
          time_t epoch;
      uint64_t packet_count;
@@ -59,7 +60,7 @@ namespace gr {
         uint32_t EDVD; } vh;
 
      public:
-      VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code);
+      VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code, unsigned int streams);
       ~VDIF_packetize_impl();
 
       // Where all the action really happens

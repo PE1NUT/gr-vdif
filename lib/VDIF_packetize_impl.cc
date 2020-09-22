@@ -29,21 +29,21 @@ namespace gr {
   namespace vdif {
 
     VDIF_packetize::sptr
-    VDIF_packetize::make(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code)
+    VDIF_packetize::make(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code, unsigned int streams)
     {
       return gnuradio::get_initial_sptr
-        (new VDIF_packetize_impl(frame_length, start_time, VTP, station_code));
+        (new VDIF_packetize_impl(frame_length, start_time, VTP, station_code, streams));
     }
 
 
     /*
      * The private constructor
      */
-    VDIF_packetize_impl::VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code)
+    VDIF_packetize_impl::VDIF_packetize_impl(unsigned int frame_length, unsigned int start_time, bool VTP, char * station_code, unsigned int streams)
       : gr::block("VDIF_packetize",
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(char))),
-              d_frame_length(frame_length), d_start_time(start_time)
+              d_frame_length(frame_length), d_start_time(start_time), d_streams(streams)
     {
         struct tm tm_epoch;
         struct timespec ts_epoch;
@@ -113,8 +113,14 @@ namespace gr {
                 *out++ = tmp;
             }
             frame++;
-            vh.frame_count++;
-            if(vh.frame_count >= 8000)
+            vh.thread_id++;
+            if(vh.thread_id >= d_streams)
+            {
+                vh.thread_id = 0;
+                vh.frame_count++;
+            }
+            // TODO: Remove hardcoded 32 MHz sample rate and 2 bits/channel
+            if(vh.frame_count >= 32000000 * 2 / (d_frame_length * 8))
             {
                 vh.frame_count = 0;
                 vh.seconds++;
@@ -123,10 +129,10 @@ namespace gr {
 
       // Tell runtime system how many input items we consumed on
       // each input stream.
-      consume_each (noutput_items);
+      consume_each (frame * d_frame_length * 4);
 
       // Tell runtime system how many output items we produced.
-      return noutput_items;
+      return frame * (d_frame_length + 32);
     }
 
   } /* namespace vdif */

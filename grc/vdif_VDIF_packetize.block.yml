@@ -4,7 +4,7 @@ category: '[vdif]'
 
 templates:
   imports: import vdif
-  make: vdif.VDIF_packetize(${frame_length}, ${start_time}, ${VTP}, ${station_code})
+  make: vdif.VDIF_packetize(${frame_length}, ${start_time}, ${VTP}, ${station_code}, ${streams})
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:
