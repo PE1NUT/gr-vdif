@@ -62,7 +62,7 @@ being fed into the gr-vdif OOT block. This block then adds the VDIF headers.
 
 ![Flowchart example](./examples/VLBI-flowchart.png)
 
-This particular flowchart was used to achieve fringes between the Dwingeloo,
+This particular flowchart was used to achieve VLBI fringes between the Dwingeloo,
 WSRT and Jodrell Bank radio telescopes, as depicted in the second image. For
 more details on these experiments, see the `publications' section.
 
@@ -91,7 +91,7 @@ This software was written by Paul Boven <boven@jive.eu>
 
 ## License
 
-This is free sofware; you can distribute it and/or modify it under the termsp of of the GNU General Public License as
+This is free sofware; you can distribute it and/or modify it under the terms of of the GNU General Public License as
 published by the Free Software Foundation; either version 3, or (at your option) any later version.
 
 This software is distributed in the hope that it will be useful, but WITHOUT
