@@ -72,8 +72,7 @@ namespace gr {
         vh.ref_epoch = hye;
         vh.frame_length = (frame_length + 32)/8;
         vh.bits_sample = 1; // bits/sample - 1 
-        auto Log2 = [](int s){int l=0; while( 1<<l != s && l < 16) l++; return l;};
-        vh.log_chans = Log2(streams);
+        vh.log_chans = 0; // Only 1 channel per dataframe
         vh.station_id = 256 * station_code[0] + station_code[1];
         vh.seconds = (time_t)start_time - epoch;
     }
